@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Academics Tutores — Centro de Ayuda | Colegios Altum</title>
+<meta name="description" content="Centro de ayuda oficial para padres de familia. Tutoriales, guías y videos para usar Academics Tutores en web y móvil." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --altum-red: #B8232E;
+    --altum-red-dark: #8F1A23;
+    --altum-red-deep: #5A1116;
+    --cream: #FBF7F2;
+    --cream-warm: #F3EADC;
+    --ink: #1A1413;
+    --ink-soft: #4A3F3D;
+    --muted: #8A7E7B;
+    --line: #E8DED2;
+    --gold: #C9A24B;
+    --white: #FFFFFF;
+    --shadow-soft: 0 1px 2px rgba(26,20,19,.04), 0 4px 16px rgba(26,20,19,.06);
+    --shadow-lift: 0 2px 8px rgba(26,20,19,.06), 0 20px 40px rgba(184,35,46,.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream); color: var(--ink);
+    line-height: 1.6; font-size: 16px;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  }
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  .top-bar {
+    background: var(--altum-red-deep); color: var(--cream);
+    font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 8px 0; text-align: center; font-weight: 500;
+  }
+  .top-bar span { opacity: .85; }
+
+  header.site {
+    background: var(--white); border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 100; backdrop-filter: blur(8px);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+  .brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ink); }
+  .brand-mark {
+    width: 42px; height: 42px; border-radius: 8px;
+    background: var(--altum-red); color: var(--white);
+    display: grid; place-items: center;
+    font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em;
+  }
+  .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+  .brand-text .name { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand-text .sub { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500; }
+
+  .nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
+  .nav-links a { color: var(--ink-soft); text-decoration: none; font-size: 14.5px; font-weight: 500; transition: color .2s ease; }
+  .nav-links a:hover { color: var(--altum-red); }
+  .nav-cta {
+    background: var(--altum-red); color: var(--white);
+    padding: 10px 20px; border-radius: 6px;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    transition: background .2s ease, transform .2s ease;
+  }
+  .nav-cta:hover { background: var(--altum-red-dark); transform: translateY(-1px); }
+  .menu-toggle { display: none; background: none; border: 0; cursor: pointer; padding: 8px; }
+  .menu-toggle span { display: block; width: 22px; height: 2px; background: var(--ink); margin: 5px 0; border-radius: 2px; }
+
+  .page-intro {
+    position: relative; padding: 64px 0 40px; overflow: hidden;
+    background:
+      radial-gradient(ellipse 80% 50% at 85% 20%, rgba(184,35,46,.08) 0%, transparent 60%),
+      radial-gradient(ellipse 70% 60% at 10% 90%, rgba(201,162,75,.08) 0%, transparent 60%),
+      var(--cream);
+  }
+  .page-intro::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='1' fill='%23B8232E' fill-opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .page-intro-inner { position: relative; max-width: 760px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(184,35,46,.08); color: var(--altum-red-dark);
+    padding: 7px 14px; border-radius: 100px;
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--altum-red); }
+  .page-intro h1 {
+    font-family: 'Fraunces', serif; font-size: clamp(32px, 4.5vw, 52px);
+    font-weight: 500; line-height: 1.05; letter-spacing: -0.02em;
+    color: var(--ink); margin-bottom: 18px;
+  }
+  .page-intro h1 em { font-style: italic; font-weight: 400; color: var(--altum-red); }
+  .page-intro p { font-size: 17px; color: var(--ink-soft); max-width: 620px; line-height: 1.55; }
+
+  .sync-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--white); border: 1px solid var(--line);
+    padding: 6px 12px; border-radius: 100px;
+    font-size: 12px; color: var(--muted); margin-top: 20px;
+  }
+  .sync-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,.2); }
+
+  .section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 50px; gap: 30px; flex-wrap: wrap; }
+  .section-title {
+    font-family: 'Fraunces', serif; font-size: clamp(30px, 3.6vw, 42px);
+    font-weight: 500; letter-spacing: -0.02em; line-height: 1.05; max-width: 580px;
+  }
+  .section-title em { font-style: italic; color: var(--altum-red); font-weight: 400; }
+  .section-kicker {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--altum-red); margin-bottom: 16px; display: block;
+  }
+  .section-lead { font-size: 16px; color: var(--ink-soft); max-width: 380px; line-height: 1.6; }
+
+  section.tutorials { padding: 80px 0 60px; }
+
+  .category-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .cat-btn {
+    padding: 10px 18px; border-radius: 100px;
+    background: transparent; border: 1.5px solid var(--line);
+    color: var(--ink-soft); font-family: inherit; font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all .2s ease;
+  }
+  .cat-btn.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .cat-btn:not(.active):hover { border-color: var(--altum-red); color: var(--altum-red); }
+
+  .tutorials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .tutorial-card {
+    background: var(--white); border-radius: 14px; overflow: hidden;
+    transition: all .3s ease; border: 1px solid var(--line);
+    display: flex; flex-direction: column;
+  }
+  .tutorial-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); border-color: transparent; }
+  .tc-thumb { aspect-ratio: 16/10; background: var(--cream-warm); position: relative; overflow: hidden; display: grid; place-items: center; }
+  .tc-thumb.thumb-familia { background: linear-gradient(135deg, #E8C1A4 0%, #B8232E 100%); }
+  .tc-thumb.thumb-facturacion { background: linear-gradient(135deg, #D4A574 0%, #8F1A23 100%); }
+  .tc-thumb.thumb-estado { background: linear-gradient(135deg, #C9A24B 0%, #5A1116 100%); }
+  .tc-thumb.thumb-transferencia { background: linear-gradient(135deg, #B8232E 0%, #5A1116 100%); }
+  .tc-thumb.thumb-online { background: linear-gradient(135deg, #8F1A23 0%, #1A1413 100%); }
+  .tc-thumb.thumb-reinscripcion { background: linear-gradient(135deg, #D4A574 0%, #B8232E 100%); }
+  .tc-thumb.thumb-bienvenida { background: linear-gradient(135deg, #FBF7F2 0%, #C9A24B 100%); }
+  .tc-thumb.thumb-perfiles { background: linear-gradient(135deg, #B8232E 0%, #C9A24B 100%); }
+  .tc-thumb.thumb-instalacion { background: linear-gradient(135deg, #5A1116 0%, #8F1A23 100%); }
+  .tc-thumb-icon { color: rgba(255,255,255,.92); filter: drop-shadow(0 4px 12px rgba(0,0,0,.2)); }
+  .tc-thumb-pattern {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='1' fill='white' fill-opacity='0.15'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .tc-type {
+    position: absolute; top: 12px; left: 12px;
+    background: rgba(255,255,255,.95); color: var(--ink);
+    padding: 5px 10px; border-radius: 100px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .tc-type.video { background: var(--altum-red); color: var(--white); }
+  .tc-type-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .tc-body { padding: 22px 22px 24px; flex: 1; display: flex; flex-direction: column; }
+  .tc-cat { font-size: 11.5px; font-weight: 600; color: var(--altum-red); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .tc-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 500; line-height: 1.25; color: var(--ink); margin-bottom: 10px; letter-spacing: -0.01em; }
+  .tc-desc { font-size: 14px; color: var(--ink-soft); line-height: 1.55; margin-bottom: 18px; flex: 1; }
+  .tc-actions { display: flex; gap: 10px; margin-top: auto; align-items: center; justify-content: space-between; }
+  .tc-link { color: var(--altum-red); text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; transition: gap .2s ease; }
+  .tc-link:hover { gap: 10px; }
+  .tc-meta { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .tc-pending { background: var(--cream-warm); color: var(--altum-red-dark); padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center; padding: 60px 20px;
+    color: var(--muted); background: var(--white);
+    border-radius: 14px; border: 1px dashed var(--line);
+  }
+  .empty-state h3 { font-family: 'Fraunces', serif; font-size: 20px; color: var(--ink); margin-bottom: 8px; font-weight: 500; }
+
+  section.faqs { padding: 100px 0; background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .faq-layout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 80px; }
+  .faq-list { display: flex; flex-direction: column; }
+  .faq-item { border-bottom: 1px solid var(--line); padding: 22px 0; }
+  .faq-item:first-child { padding-top: 0; }
+  .faq-q {
+    background: transparent; border: 0; width: 100%; text-align: left;
+    font-family: inherit; font-size: 17px; font-weight: 600; color: var(--ink);
+    cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px;
+    padding: 0; letter-spacing: -0.005em;
+  }
+  .faq-q:hover { color: var(--altum-red); }
+  .faq-icon {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--cream-warm); color: var(--altum-red);
+    display: grid; place-items: center;
+    transition: transform .3s ease, background .2s ease;
+    font-size: 18px; font-weight: 400;
+  }
+  .faq-item.open .faq-icon { transform: rotate(45deg); background: var(--altum-red); color: var(--white); }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height .4s ease, margin-top .3s ease; color: var(--ink-soft); font-size: 15px; line-height: 1.65; }
+  .faq-item.open .faq-a { max-height: 500px; margin-top: 14px; }
+  .faq-a p + p { margin-top: 10px; }
+
+  section.support { padding: 100px 0; position: relative; background: var(--ink); color: var(--cream); overflow: hidden; }
+  section.support::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 100% 0%, rgba(184,35,46,.4) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 60% at 0% 100%, rgba(201,162,75,.2) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .support-inner { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .support-title { font-family: 'Fraunces', serif; font-size: clamp(36px, 4.5vw, 54px); font-weight: 400; letter-spacing: -0.02em; line-height: 1.05; color: var(--cream); }
+  .support-title em { font-style: italic; color: var(--gold); }
+  .support-lead { font-size: 17px; color: rgba(251,247,242,.75); margin-top: 20px; max-width: 440px; line-height: 1.65; }
+  .contact-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(10px); border-radius: 16px; padding: 32px; }
+  .contact-row { display: flex; align-items: flex-start; gap: 18px; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,.08); text-decoration: none; color: inherit; transition: padding .2s ease; }
+  .contact-row:last-child { border-bottom: 0; }
+  .contact-row:hover { padding-left: 4px; }
+  .contact-icon { width: 44px; height: 44px; background: var(--altum-red); color: var(--white); border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; }
+  .contact-label { font-size: 12.5px; color: rgba(251,247,242,.6); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; }
+  .contact-val { font-size: 16px; color: var(--cream); font-weight: 500; margin-top: 4px; }
+
+  footer.site { background: var(--altum-red-deep); color: rgba(251,247,242,.75); padding: 40px 0 30px; font-size: 14px; }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+  footer .brand-text .name { color: var(--cream); }
+  footer .brand-text .sub { color: rgba(251,247,242,.5); }
+  .footer-copy { font-size: 13px; color: rgba(251,247,242,.55); text-align: right; }
+
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .menu-toggle { display: block; }
+    .page-intro { padding: 50px 0 30px; }
+    .tutorials-grid { grid-template-columns: 1fr; }
+    .faq-layout, .support-inner { grid-template-columns: 1fr; gap: 40px; }
+    section.tutorials { padding: 60px 0 40px; }
+    section.faqs, section.support { padding: 70px 0; }
+    .footer-inner { flex-direction: column; text-align: center; }
+    .footer-copy { text-align: center; }
+  }
+  @media (max-width: 520px) { .container { padding: 0 20px; } .top-bar { font-size: 11px; padding: 6px 0; } }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span>Centro de Ayuda Oficial · Academics Tutores · Colegios Altum</span>
+</div>
+
+<header class="site">
+  <div class="container nav">
+    <a class="brand" href="#top">
+      <span class="brand-mark">A</span>
+      <span class="brand-text">
+        <span class="name">Academics Tutores</span>
+        <span class="sub">Centro de Ayuda</span>
+      </span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#tutoriales">Biblioteca de Ayuda</a></li>
+      <li><a href="#faqs">Preguntas Frecuentes</a></li>
+      <li><a href="#soporte">¿Necesitas ayuda?</a></li>
+      <li><a class="nav-cta" href="https://colegiosaltum.mx/academics" target="_blank" rel="noopener">Ingresar a la App</a></li>
+    </ul>
+    <button class="menu-toggle" aria-label="Menú"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<section class="page-intro" id="top">
+  <div class="container page-intro-inner">
+    <span class="eyebrow">Para padres de familia</span>
+    <h1>Todo lo que necesitas saber sobre <em>Academics Tutores.</em></h1>
+    <p>Guías paso a paso, videos y tutoriales en PDF para gestionar pagos, facturación, reinscripciones y el seguimiento académico de tus hijos — en un solo lugar.</p>
+    <div class="sync-badge" title="Los materiales se sincronizan cada noche desde nuestro sistema de gestión">
+      <span class="dot"></span>
+      <span>Actualizado · {{LAST_UPDATED}}</span>
+    </div>
+  </div>
+</section>
+
+<section class="tutorials" id="tutoriales">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <span class="section-kicker">Biblioteca de ayuda</span>
+        <h2 class="section-title">Tutoriales que te <em>acompañan</em> en cada paso.</h2>
+      </div>
+      <p class="section-lead">Descarga las guías en PDF o mira los videos cortos. Contenidos siempre al día.</p>
+    </div>
+
+    <div class="category-filter" role="tablist">
+      {{CATEGORY_FILTER}}
+    </div>
+
+    <div class="tutorials-grid" id="tutGrid">
+{{TUTORIAL_CARDS}}
+    </div>
+  </div>
+</section>
+
+<section class="faqs" id="faqs">
+  <div class="container faq-layout">
+    <div class="faq-head">
+      <span class="section-kicker">Preguntas frecuentes</span>
+      <h2 class="section-title">Respuestas rápidas a las dudas <em>más comunes.</em></h2>
+      <p class="section-lead" style="margin-top: 20px;">Si no encuentras lo que buscas, contáctanos directamente desde la sección de soporte.</p>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q">¿Qué es Academics Tutores y para qué sirve? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Es la plataforma oficial de Colegios Altum diseñada para padres de familia. Te permite consultar información académica, administrativa y financiera de tus hijos desde un mismo lugar, ya sea en versión web o móvil.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">¿Cómo accedo a la plataforma web? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Ingresa a colegiosaltum.mx/academics desde cualquier navegador. Usa las credenciales que te proporcionó el colegio. Si es tu primera vez, revisa el tutorial de "Acceso e instalación".</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">¿Puedo gestionar a todos mis hijos desde una sola cuenta? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Sí. Desde el Administrador de Familiares puedes cambiar fluidamente entre los perfiles de tus hijos — preescolar, primaria y secundaria — sin necesidad de cerrar sesión.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">¿Qué formas de pago acepta la plataforma? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Puedes pagar mediante transferencia SPEI o con tarjeta de crédito/débito. La plataforma está integrada con BBVA y Santander para garantizar transacciones seguras y rápidas.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">¿Cómo cargo mi constancia de situación fiscal? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Desde el módulo de Facturación puedes registrar tus datos fiscales y subir tu constancia en formato PDF. El sistema validará automáticamente la información con el SAT. Revisa el tutorial "Registrar datos de facturación".</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">¿Dónde descargo mis facturas electrónicas? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>Dentro del módulo de Estado de Cuenta encontrarás el historial completo de movimientos y un botón de descarga junto a cada factura electrónica (CFDI).</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">¿Qué hago si no recuerdo mi contraseña? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>En la pantalla de acceso, haz clic en "¿Olvidaste tu contraseña?" y te enviaremos instrucciones al correo registrado. Si no tienes acceso a ese correo, contáctanos directamente para apoyarte.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">¿En qué dispositivos puedo usar la app? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><p>La app móvil está disponible para iOS y Android, y la versión web funciona en cualquier navegador moderno (Chrome, Safari, Firefox, Edge) desde computadora, tablet o celular.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="support" id="soporte">
+  <div class="container support-inner">
+    <div>
+      <span class="section-kicker" style="color: var(--gold);">¿Necesitas ayuda?</span>
+      <h2 class="support-title">Estamos aquí para <em>acompañarte.</em></h2>
+      <p class="support-lead">Si los tutoriales no resolvieron tu duda, contacta a nuestro equipo de soporte. Respondemos en horario escolar.</p>
+    </div>
+    <div class="contact-card">
+      <a class="contact-row" href="mailto:plantel.sandiego@colegiosaltum.mx">
+        <span class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+        <div><div class="contact-label">Correo electrónico</div><div class="contact-val">plantel.sandiego@colegiosaltum.mx</div></div>
+      </a>
+      <a class="contact-row" href="https://api.whatsapp.com/send?phone=+522221516907" target="_blank" rel="noopener">
+        <span class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+        <div><div class="contact-label">WhatsApp</div><div class="contact-val">+52 222 151 6907</div></div>
+      </a>
+      <a class="contact-row" href="tel:+5222101000">
+        <span class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+        <div><div class="contact-label">Teléfono</div><div class="contact-val">222 101 0000</div></div>
+      </a>
+      <a class="contact-row" href="https://colegiosaltum.mx/contacto/" target="_blank" rel="noopener">
+        <span class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <div><div class="contact-label">Visita nuestro colegio</div><div class="contact-val">Plantel San Diego · Puebla</div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="container footer-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark">A</span>
+      <span class="brand-text"><span class="name">Academics Tutores</span><span class="sub">Centro de Ayuda</span></span>
+    </a>
+    <div class="footer-copy">© 2026 Colegios Altum · Sistema UPAEP.<br/>Todos los derechos reservados.</div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+  const catBtns = document.querySelectorAll('.cat-btn');
+  const cards = document.querySelectorAll('.tutorial-card');
+  catBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      catBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      cards.forEach(card => { card.style.display = (f === 'all' || card.dataset.cat === f) ? '' : 'none'; });
+    });
+  });
+  const menuBtn = document.querySelector('.menu-toggle');
+  const navLinks = document.querySelector('.nav-links');
+  if (menuBtn) {
+    menuBtn.addEventListener('click', () => {
+      const visible = navLinks.style.display === 'flex';
+      if (visible) { navLinks.removeAttribute('style'); return; }
+      Object.assign(navLinks.style, {
+        display: 'flex', flexDirection: 'column', position: 'absolute',
+        top: '100%', left: '0', right: '0', background: 'var(--white)',
+        padding: '20px', borderBottom: '1px solid var(--line)',
+      });
+    });
+  }
+</script>
+</body>
+</html>

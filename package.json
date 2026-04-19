@@ -1,0 +1,14 @@
+{
+  "name": "academics-tutores-micrositio",
+  "version": "1.0.0",
+  "description": "Micrositio de centro de ayuda para padres de familia — sincronizado desde Notion",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "node scripts/build.js && npx serve public"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "dotenv": "^16.4.5"
+  }
+}

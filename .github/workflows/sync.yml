@@ -1,0 +1,61 @@
+name: Sincronizar Micrositio desde Notion
+
+on:
+  # Corre todos los días a las 6:00 AM hora CDMX (12:00 UTC)
+  schedule:
+    - cron: '0 12 * * *'
+  # Permite disparar manualmente desde la pestaña "Actions" de GitHub
+  workflow_dispatch:
+  # Regenera también cuando se cambie el código del template o del script
+  push:
+    branches: [main]
+    paths:
+      - 'templates/**'
+      - 'scripts/**'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Generar sitio desde Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        run: npm run build
+
+      - name: Subir artifact de Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
