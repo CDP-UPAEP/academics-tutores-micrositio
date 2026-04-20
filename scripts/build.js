@@ -5,18 +5,15 @@
  * ————————————————————————————————————————————————————————————————————
  *
  *  Flujo:
- *  1. Lee la base "Registro de manuales" vía Notion API
- *  2. Filtra los manuales que:
- *     - Tengan el producto marcado (config.name → coincide con el rollup)
- *     - Estén en estado "Actualizado"
- *     - Tengan el checkbox "Visible en micrositio" activado
- *  3. Inyecta las tarjetas en el template HTML y escribe public/index.html
+ *  1. Lee DOS bases de Notion:
+ *     - "Registro de manuales" → tarjetas de tutoriales
+ *     - "FAQs - Micrositios CDP" → preguntas frecuentes
+ *  2. Aplica los filtros: Estado=Actualizado + Visible en micrositio + Producto
+ *  3. Inyecta todo en el template y escribe public/index.html
  *
- *  Notas de arquitectura:
- *  - Categoría Pública es flexible: se lee lo que venga de Notion, sin lista fija.
- *    El equipo puede agregar nuevas categorías sin tocar código.
- *  - Para lanzar un micrositio para otro producto (ej. CANVAS, Sorteo), duplicar
- *    este proyecto y cambiar PRODUCT_CONFIG.name y el template.
+ *  Para lanzar un micrositio para otro producto, duplicar este proyecto
+ *  y cambiar PRODUCT_CONFIG.productNames. La misma base de Notion sirve
+ *  para todos los productos del DIT.
  */
 
 import { Client } from '@notionhq/client';
@@ -28,24 +25,14 @@ import 'dotenv/config';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-// ————— Configuración por producto —————
 const PRODUCT_CONFIG = {
-  // Nombres del producto en la base "Productos y herramientas" que cuentan como
-  // coincidencia. Acepta varios para soportar renombres sin romper el sitio
-  // (actualmente se llama "ACADEMICS", pero va a ser renombrado a "Academics Tutores").
-  // La comparación es case-insensitive. Cuando el renombre esté 100% consolidado,
-  // puedes dejar solo el nombre nuevo.
   productNames: ['Academics Tutores', 'ACADEMICS'],
-
-  // Etiqueta bonita para mostrar en el sitio y en logs.
   displayName: 'Academics Tutores',
-
-  databaseId: process.env.NOTION_DATABASE_ID,
+  manualsDatabaseId: process.env.NOTION_DATABASE_ID,
+  faqsDatabaseId: process.env.NOTION_FAQS_DATABASE_ID,
   outputDir: 'public',
   template: 'templates/index.template.html',
-
-  // Nombres EXACTOS de las propiedades en Notion (respeta mayúsculas y acentos).
-  properties: {
+  manualProperties: {
     title: 'Título de manual',
     description: 'Descripción Corta',
     category: 'Categoría Pública',
@@ -54,25 +41,27 @@ const PRODUCT_CONFIG = {
     status: 'Estado',
     visible: 'Visible en micrositio',
     url: 'URL',
-    productRollup: 'Rollup', // Rollup que devuelve el nombre del producto relacionado
+    productRollup: 'Rollup',
   },
-
-  // Overrides de slug para categorías con nombres complicados.
-  // Si no se define aquí, el slug se genera automáticamente desde el nombre.
-  categorySlugOverrides: {
-    // 'Categoría con nombre complicado': 'slug-custom',
+  faqProperties: {
+    question: 'Pregunta',
+    answer: 'Respuesta',
+    order: 'Orden',
+    status: 'Estado',
+    visible: 'Visible en micrositio',
+    productRollup: 'Rollup',
   },
+  categorySlugOverrides: {},
 };
 
-// ————— Helpers para leer propiedades de Notion —————
 const prop = {
   title: (p) => p?.title?.map(t => t.plain_text).join('') || '',
   rich: (p) => p?.rich_text?.map(t => t.plain_text).join('') || '',
   select: (p) => p?.select?.name || '',
-  multiSelect: (p) => p?.multi_select?.map(s => s.name) || [],
   status: (p) => p?.status?.name || '',
   url: (p) => p?.url || '',
   checkbox: (p) => !!p?.checkbox,
+  number: (p) => (typeof p?.number === 'number' ? p.number : null),
   rollupTitles: (p) => {
     if (!p?.rollup?.array) return [];
     return p.rollup.array
@@ -81,16 +70,9 @@ const prop = {
   },
 };
 
-// ————— Paleta de thumbnails (se asignan rotando por índice) —————
 const THUMB_POOL = [
-  'thumb-instalacion',
-  'thumb-familia',
-  'thumb-facturacion',
-  'thumb-estado',
-  'thumb-transferencia',
-  'thumb-online',
-  'thumb-reinscripcion',
-  'thumb-bienvenida',
+  'thumb-instalacion', 'thumb-familia', 'thumb-facturacion', 'thumb-estado',
+  'thumb-transferencia', 'thumb-online', 'thumb-reinscripcion', 'thumb-bienvenida',
   'thumb-perfiles',
 ];
 
@@ -108,50 +90,62 @@ const SVG_ICONS = {
 
 const PLAY_BUTTON_SVG = `<svg class="tc-thumb-icon" width="64" height="64" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>`;
 
-// ————— Utilidades —————
 function escapeHtml(str = '') {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function slugify(str = '') {
-  return String(str)
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  return String(str).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
 function getCategorySlug(category, config) {
   return config.categorySlugOverrides[category] || slugify(category) || 'sin-categoria';
 }
 
-// ————— Generador de tarjeta —————
+/**
+ * Convierte el texto de una respuesta de FAQ a HTML formateado.
+ * Maneja: bullets con "•", saltos de línea "<br>" literales que vienen de Notion,
+ * y texto plano corrido.
+ */
+function formatAnswerText(text) {
+  if (!text) return '';
+  let html = escapeHtml(text);
+  html = html.replace(/&lt;br\s*\/?&gt;/gi, '\n');
+  const lines = html.split(/\n/).map(l => l.trim()).filter(Boolean);
+  if (lines.length === 0) return '';
+
+  const output = [];
+  let currentList = null;
+  for (const line of lines) {
+    if (line.startsWith('•')) {
+      if (!currentList) { currentList = []; }
+      currentList.push(`<li>${line.substring(1).trim()}</li>`);
+    } else {
+      if (currentList) {
+        output.push(`<ul>${currentList.join('')}</ul>`);
+        currentList = null;
+      }
+      output.push(`<p>${line}</p>`);
+    }
+  }
+  if (currentList) output.push(`<ul>${currentList.join('')}</ul>`);
+  return output.join('');
+}
+
 function renderCard(item, index, config) {
   const category = item.category || 'Sin categoría';
   const catSlug = getCategorySlug(category, config);
   const isVideo = item.type === 'Video';
-
   const thumbClass = THUMB_POOL[index % THUMB_POOL.length];
   const icon = isVideo ? PLAY_BUTTON_SVG : (SVG_ICONS[thumbClass] || SVG_ICONS['thumb-instalacion']);
-
   const typeLabel = isVideo ? 'Video' : 'PDF';
   const typeClass = isVideo ? 'tc-type video' : 'tc-type';
   const actionLabel = isVideo ? 'Ver video' : 'Descargar PDF';
-
   const hasUrl = item.url && item.url.trim().length > 0;
   const metaText = item.duration || (isVideo ? 'Video' : '');
 
   const actionHtml = hasUrl
-    ? `<a class="tc-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener">
-         ${actionLabel}
-         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-       </a>`
+    ? `<a class="tc-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener">${actionLabel}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>`
     : `<span class="tc-pending">Próximamente</span>`;
 
   return `
@@ -173,7 +167,6 @@ function renderCard(item, index, config) {
       </article>`;
 }
 
-// ————— Botones de filtro de categoría (generados dinámicamente) —————
 function renderCategoryFilter(categories, config) {
   const buttons = [`<button class="cat-btn active" data-filter="all">Todos</button>`];
   categories.forEach(cat => {
@@ -183,65 +176,101 @@ function renderCategoryFilter(categories, config) {
   return buttons.join('\n      ');
 }
 
-function renderEmptyState() {
+function renderFaqItem(faq) {
   return `
-      <div class="empty-state">
-        <h3>Pronto publicaremos los primeros tutoriales</h3>
-        <p>Nuestro equipo está preparando los materiales. Vuelve pronto.</p>
+      <div class="faq-item">
+        <button class="faq-q">${escapeHtml(faq.question)} <span class="faq-icon">+</span></button>
+        <div class="faq-a">${formatAnswerText(faq.answer)}</div>
       </div>`;
 }
 
-// ————— Obtención de datos desde Notion —————
-async function fetchTutorials(notion, config) {
-  console.log(`→ Consultando base de Notion...`);
-  console.log(`  Producto: ${config.displayName}`);
-  console.log(`  Nombres aceptados en el rollup: ${config.productNames.join(', ')}`);
+function renderEmptyState() {
+  return `<div class="empty-state"><h3>Pronto publicaremos los primeros tutoriales</h3><p>Nuestro equipo está preparando los materiales. Vuelve pronto.</p></div>`;
+}
 
+function renderEmptyFaqs() {
+  return `<div class="empty-state" style="margin: 0;"><h3>Estamos preparando las preguntas frecuentes</h3><p>Muy pronto encontrarás aquí las respuestas a las dudas más comunes.</p></div>`;
+}
+
+async function fetchManuals(notion, config) {
+  console.log(`→ Consultando base "Registro de manuales"...`);
   const pages = [];
   let cursor;
-
-  // Filtros a nivel API: Estado + Visible. El filtro por producto se hace en memoria
-  // porque filtrar rollups con la API de Notion es frágil.
   do {
     const response = await notion.databases.query({
-      database_id: config.databaseId,
+      database_id: config.manualsDatabaseId,
       start_cursor: cursor,
       filter: {
         and: [
-          { property: config.properties.status, status: { equals: 'Actualizado' } },
-          { property: config.properties.visible, checkbox: { equals: true } },
+          { property: config.manualProperties.status, status: { equals: 'Actualizado' } },
+          { property: config.manualProperties.visible, checkbox: { equals: true } },
         ],
       },
       page_size: 100,
     });
-
     pages.push(...response.results);
     cursor = response.has_more ? response.next_cursor : undefined;
   } while (cursor);
+  console.log(`  ${pages.length} manuales con Estado=Actualizado + Visible=✓`);
 
-  console.log(`  ${pages.length} manuales cumplen Estado=Actualizado + Visible=✓`);
-
-  // Filtrado en memoria por producto (match contra la lista de nombres aceptados)
   const acceptedNames = config.productNames.map(n => n.toLowerCase());
   const filtered = pages.filter(page => {
-    const productNames = prop.rollupTitles(page.properties[config.properties.productRollup]);
+    const productNames = prop.rollupTitles(page.properties[config.manualProperties.productRollup]);
     return productNames.some(n => acceptedNames.includes(n.toLowerCase()));
   });
-
-  console.log(`✓ ${filtered.length} manuales del producto "${config.displayName}"`);
+  console.log(`✓ ${filtered.length} manuales de "${config.displayName}"`);
 
   return filtered.map(page => ({
     id: page.id,
-    title: prop.title(page.properties[config.properties.title]),
-    description: prop.rich(page.properties[config.properties.description]),
-    category: prop.select(page.properties[config.properties.category]),
-    duration: prop.select(page.properties[config.properties.duration]),
-    type: prop.select(page.properties[config.properties.type]),
-    url: prop.url(page.properties[config.properties.url]),
+    title: prop.title(page.properties[config.manualProperties.title]),
+    description: prop.rich(page.properties[config.manualProperties.description]),
+    category: prop.select(page.properties[config.manualProperties.category]),
+    duration: prop.select(page.properties[config.manualProperties.duration]),
+    type: prop.select(page.properties[config.manualProperties.type]),
+    url: prop.url(page.properties[config.manualProperties.url]),
   }));
 }
 
-// ————— Build principal —————
+async function fetchFaqs(notion, config) {
+  if (!config.faqsDatabaseId) {
+    console.log(`→ (FAQs omitidas: NOTION_FAQS_DATABASE_ID no definido)`);
+    return [];
+  }
+  console.log(`→ Consultando base "FAQs - Micrositios CDP"...`);
+  const pages = [];
+  let cursor;
+  do {
+    const response = await notion.databases.query({
+      database_id: config.faqsDatabaseId,
+      start_cursor: cursor,
+      filter: {
+        and: [
+          { property: config.faqProperties.status, status: { equals: 'Actualizado' } },
+          { property: config.faqProperties.visible, checkbox: { equals: true } },
+        ],
+      },
+      page_size: 100,
+    });
+    pages.push(...response.results);
+    cursor = response.has_more ? response.next_cursor : undefined;
+  } while (cursor);
+  console.log(`  ${pages.length} FAQs con Estado=Actualizado + Visible=✓`);
+
+  const acceptedNames = config.productNames.map(n => n.toLowerCase());
+  const filtered = pages.filter(page => {
+    const productNames = prop.rollupTitles(page.properties[config.faqProperties.productRollup]);
+    return productNames.some(n => acceptedNames.includes(n.toLowerCase()));
+  });
+  console.log(`✓ ${filtered.length} FAQs de "${config.displayName}"`);
+
+  return filtered.map(page => ({
+    id: page.id,
+    question: prop.title(page.properties[config.faqProperties.question]),
+    answer: prop.rich(page.properties[config.faqProperties.answer]),
+    order: prop.number(page.properties[config.faqProperties.order]),
+  }));
+}
+
 async function build() {
   if (!process.env.NOTION_TOKEN) throw new Error('Falta la variable de entorno NOTION_TOKEN');
   if (!process.env.NOTION_DATABASE_ID) throw new Error('Falta la variable de entorno NOTION_DATABASE_ID');
@@ -249,17 +278,17 @@ async function build() {
   const notion = new Client({ auth: process.env.NOTION_TOKEN });
   const config = PRODUCT_CONFIG;
 
-  // 1. Leer Notion
-  const tutorials = await fetchTutorials(notion, config);
+  const [manuals, faqs] = await Promise.all([
+    fetchManuals(notion, config),
+    fetchFaqs(notion, config),
+  ]);
 
-  // 2. Descubrir categorías presentes (dinámico, sin lista fija)
   const categoriesSeen = [];
-  tutorials.forEach(t => {
+  manuals.forEach(t => {
     if (t.category && !categoriesSeen.includes(t.category)) categoriesSeen.push(t.category);
   });
 
-  // 3. Ordenar: por orden de categoría descubierta, luego Manual antes que Video, luego título
-  tutorials.sort((a, b) => {
+  manuals.sort((a, b) => {
     const ai = categoriesSeen.indexOf(a.category);
     const bi = categoriesSeen.indexOf(b.category);
     if (ai !== bi) return ai - bi;
@@ -267,49 +296,47 @@ async function build() {
     return a.title.localeCompare(b.title, 'es');
   });
 
-  // 4. Generar HTML
-  const cardsHtml = tutorials.map((t, i) => renderCard(t, i, config)).join('\n');
-  const filterHtml = renderCategoryFilter(categoriesSeen, config);
-
-  // 5. Leer template y reemplazar marcadores
-  const templatePath = join(ROOT, config.template);
-  const template = await readFile(templatePath, 'utf-8');
-
-  const now = new Date();
-  const lastUpdated = now.toLocaleString('es-MX', {
-    timeZone: 'America/Mexico_City',
-    dateStyle: 'long',
-    timeStyle: 'short',
+  faqs.sort((a, b) => {
+    if (a.order == null && b.order == null) return a.question.localeCompare(b.question, 'es');
+    if (a.order == null) return 1;
+    if (b.order == null) return -1;
+    return a.order - b.order;
   });
+
+  const cardsHtml = manuals.map((t, i) => renderCard(t, i, config)).join('\n');
+  const filterHtml = renderCategoryFilter(categoriesSeen, config);
+  const faqsHtml = faqs.map(renderFaqItem).join('\n');
+
+  const template = await readFile(join(ROOT, config.template), 'utf-8');
+  const now = new Date();
+  const lastUpdated = now.toLocaleString('es-MX', { timeZone: 'America/Mexico_City', dateStyle: 'long', timeStyle: 'short' });
 
   const html = template
     .replace('{{TUTORIAL_CARDS}}', cardsHtml || renderEmptyState())
     .replace('{{CATEGORY_FILTER}}', filterHtml)
+    .replace('{{FAQ_ITEMS}}', faqsHtml || renderEmptyFaqs())
     .replace(/{{LAST_UPDATED}}/g, lastUpdated)
-    .replace(/{{TOTAL_COUNT}}/g, String(tutorials.length));
+    .replace(/{{TOTAL_COUNT}}/g, String(manuals.length));
 
-  // 6. Escribir output
   const outputDir = join(ROOT, config.outputDir);
   await mkdir(outputDir, { recursive: true });
   await writeFile(join(outputDir, 'index.html'), html, 'utf-8');
 
-  // 7. Snapshot JSON para debugging
   await mkdir(join(ROOT, 'data'), { recursive: true });
   await writeFile(
     join(ROOT, 'data', 'tutorials.json'),
     JSON.stringify({
       generatedAt: now.toISOString(),
       product: config.displayName,
-      count: tutorials.length,
+      manuals: { count: manuals.length, items: manuals },
+      faqs: { count: faqs.length, items: faqs },
       categories: categoriesSeen,
-      tutorials,
     }, null, 2),
     'utf-8'
   );
 
   console.log(`\n✓ Sitio generado: ${outputDir}/index.html`);
-  console.log(`  ${tutorials.length} manuales · ${categoriesSeen.length} categorías`);
-  console.log(`  Categorías: ${categoriesSeen.join(', ') || '(ninguna)'}`);
+  console.log(`  ${manuals.length} manuales · ${faqs.length} FAQs · ${categoriesSeen.length} categorías`);
   console.log(`  Última actualización: ${lastUpdated}`);
 }
 

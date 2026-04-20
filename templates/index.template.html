@@ -49,9 +49,12 @@
   .brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ink); }
   .brand-mark {
     width: 42px; height: 42px; border-radius: 8px;
-    background: var(--altum-red); color: var(--white);
+    background: var(--altum-red);
     display: grid; place-items: center;
-    font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em;
+    overflow: hidden;
+  }
+  .brand-mark img {
+    width: 72%; height: 72%; object-fit: contain;
   }
   .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
   .brand-text .name { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
@@ -202,8 +205,11 @@
   }
   .faq-item.open .faq-icon { transform: rotate(45deg); background: var(--altum-red); color: var(--white); }
   .faq-a { max-height: 0; overflow: hidden; transition: max-height .4s ease, margin-top .3s ease; color: var(--ink-soft); font-size: 15px; line-height: 1.65; }
-  .faq-item.open .faq-a { max-height: 500px; margin-top: 14px; }
-  .faq-a p + p { margin-top: 10px; }
+  .faq-item.open .faq-a { max-height: 800px; margin-top: 14px; }
+  .faq-a p + p, .faq-a p + ul, .faq-a ul + p { margin-top: 10px; }
+  .faq-a ul { padding-left: 20px; margin: 0; }
+  .faq-a ul li { margin-bottom: 6px; }
+  .faq-a ul li:last-child { margin-bottom: 0; }
 
   section.support { padding: 100px 0; position: relative; background: var(--ink); color: var(--cream); overflow: hidden; }
   section.support::before {
@@ -226,10 +232,21 @@
   .contact-val { font-size: 16px; color: var(--cream); font-weight: 500; margin-top: 4px; }
 
   footer.site { background: var(--altum-red-deep); color: rgba(251,247,242,.75); padding: 40px 0 30px; font-size: 14px; }
-  .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+  .footer-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 40px; }
   footer .brand-text .name { color: var(--cream); }
   footer .brand-text .sub { color: rgba(251,247,242,.5); }
   .footer-copy { font-size: 13px; color: rgba(251,247,242,.55); text-align: right; }
+  .app-stores { display: flex; gap: 10px; justify-content: center; }
+  .app-store-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: rgba(0,0,0,.4); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; text-decoration: none; color: var(--cream); transition: all .2s ease; min-width: 140px; }
+  .app-store-badge:hover { background: rgba(0,0,0,.6); border-color: rgba(255,255,255,.3); transform: translateY(-1px); }
+  .app-store-badge svg { flex-shrink: 0; }
+  .app-store-badge-text { display: flex; flex-direction: column; line-height: 1.1; }
+  .app-store-badge-text .small { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(251,247,242,.7); }
+  .app-store-badge-text .big { font-size: 14px; font-weight: 600; color: var(--cream); }
+  @media (max-width: 900px) {
+    .footer-inner { grid-template-columns: 1fr !important; text-align: center; gap: 24px; }
+    .app-stores { justify-content: center; }
+  }
 
   @media (max-width: 900px) {
     .nav-links { display: none; }
@@ -239,7 +256,6 @@
     .faq-layout, .support-inner { grid-template-columns: 1fr; gap: 40px; }
     section.tutorials { padding: 60px 0 40px; }
     section.faqs, section.support { padding: 70px 0; }
-    .footer-inner { flex-direction: column; text-align: center; }
     .footer-copy { text-align: center; }
   }
   @media (max-width: 520px) { .container { padding: 0 20px; } .top-bar { font-size: 11px; padding: 6px 0; } }
@@ -248,13 +264,13 @@
 <body>
 
 <div class="top-bar">
-  <span>Centro de Ayuda Oficial · Academics Tutores · Colegios Altum</span>
+  <span>Centro de Ayuda y Cultura Digital · Academics Tutores · Colegios Altum</span>
 </div>
 
 <header class="site">
   <div class="container nav">
     <a class="brand" href="#top">
-      <span class="brand-mark">A</span>
+      <span class="brand-mark"><img src="data:image/png;base64,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" alt="Academics Tutores" /></span>
       <span class="brand-text">
         <span class="name">Academics Tutores</span>
         <span class="sub">Centro de Ayuda</span>
@@ -264,7 +280,7 @@
       <li><a href="#tutoriales">Biblioteca de Ayuda</a></li>
       <li><a href="#faqs">Preguntas Frecuentes</a></li>
       <li><a href="#soporte">¿Necesitas ayuda?</a></li>
-      <li><a class="nav-cta" href="https://colegiosaltum.mx/academics" target="_blank" rel="noopener">Ingresar a la App</a></li>
+      <li><a class="nav-cta" href="https://colegiosaltum.mx/academics" target="_blank" rel="noopener">Ingresar vía Web</a></li>
     </ul>
     <button class="menu-toggle" aria-label="Menú"><span></span><span></span><span></span></button>
   </div>
@@ -274,7 +290,7 @@
   <div class="container page-intro-inner">
     <span class="eyebrow">Para padres de familia</span>
     <h1>Todo lo que necesitas saber sobre <em>Academics Tutores.</em></h1>
-    <p>Guías paso a paso, videos y tutoriales en PDF para gestionar pagos, facturación, reinscripciones y el seguimiento académico de tus hijos — en un solo lugar.</p>
+    <p>Guías paso a paso, videos y tutoriales en PDF para gestionar pagos, facturación, reinscripciones y el seguimiento académico de tus hijos en un solo lugar.</p>
     <div class="sync-badge" title="Los materiales se sincronizan cada noche desde nuestro sistema de gestión">
       <span class="dot"></span>
       <span>Actualizado · {{LAST_UPDATED}}</span>
@@ -287,9 +303,9 @@
     <div class="section-header">
       <div>
         <span class="section-kicker">Biblioteca de ayuda</span>
-        <h2 class="section-title">Tutoriales que te <em>acompañan</em> en cada paso.</h2>
+        <h2 class="section-title">Tutoriales que te <em>acompañan.</em></h2>
       </div>
-      <p class="section-lead">Descarga las guías en PDF o mira los videos cortos. Contenidos siempre al día.</p>
+      <p class="section-lead">Consulta las guías en PDF o mira los videos cortos. Contenidos actualizados.</p>
     </div>
 
     <div class="category-filter" role="tablist">
@@ -311,38 +327,7 @@
     </div>
 
     <div class="faq-list">
-      <div class="faq-item">
-        <button class="faq-q">¿Qué es Academics Tutores y para qué sirve? <span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Es la plataforma oficial de Colegios Altum diseñada para padres de familia. Te permite consultar información académica, administrativa y financiera de tus hijos desde un mismo lugar, ya sea en versión web o móvil.</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">¿Cómo accedo a la plataforma web? <span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Ingresa a colegiosaltum.mx/academics desde cualquier navegador. Usa las credenciales que te proporcionó el colegio. Si es tu primera vez, revisa el tutorial de "Acceso e instalación".</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">¿Puedo gestionar a todos mis hijos desde una sola cuenta? <span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Sí. Desde el Administrador de Familiares puedes cambiar fluidamente entre los perfiles de tus hijos — preescolar, primaria y secundaria — sin necesidad de cerrar sesión.</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">¿Qué formas de pago acepta la plataforma? <span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Puedes pagar mediante transferencia SPEI o con tarjeta de crédito/débito. La plataforma está integrada con BBVA y Santander para garantizar transacciones seguras y rápidas.</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">¿Cómo cargo mi constancia de situación fiscal? <span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Desde el módulo de Facturación puedes registrar tus datos fiscales y subir tu constancia en formato PDF. El sistema validará automáticamente la información con el SAT. Revisa el tutorial "Registrar datos de facturación".</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">¿Dónde descargo mis facturas electrónicas? <span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>Dentro del módulo de Estado de Cuenta encontrarás el historial completo de movimientos y un botón de descarga junto a cada factura electrónica (CFDI).</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">¿Qué hago si no recuerdo mi contraseña? <span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>En la pantalla de acceso, haz clic en "¿Olvidaste tu contraseña?" y te enviaremos instrucciones al correo registrado. Si no tienes acceso a ese correo, contáctanos directamente para apoyarte.</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q">¿En qué dispositivos puedo usar la app? <span class="faq-icon">+</span></button>
-        <div class="faq-a"><p>La app móvil está disponible para iOS y Android, y la versión web funciona en cualquier navegador moderno (Chrome, Safari, Firefox, Edge) desde computadora, tablet o celular.</p></div>
-      </div>
+{{FAQ_ITEMS}}
     </div>
   </div>
 </section>
@@ -355,21 +340,13 @@
       <p class="support-lead">Si los tutoriales no resolvieron tu duda, contacta a nuestro equipo de soporte. Respondemos en horario escolar.</p>
     </div>
     <div class="contact-card">
-      <a class="contact-row" href="mailto:plantel.sandiego@colegiosaltum.mx">
+      <a class="contact-row" href="mailto:sit@upaep.mx">
         <span class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
-        <div><div class="contact-label">Correo electrónico</div><div class="contact-val">plantel.sandiego@colegiosaltum.mx</div></div>
+        <div><div class="contact-label">Correo electrónico</div><div class="contact-val">sit@upaep.mx</div></div>
       </a>
-      <a class="contact-row" href="https://api.whatsapp.com/send?phone=+522221516907" target="_blank" rel="noopener">
-        <span class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
-        <div><div class="contact-label">WhatsApp</div><div class="contact-val">+52 222 151 6907</div></div>
-      </a>
-      <a class="contact-row" href="tel:+5222101000">
+      <a class="contact-row" href="tel:+522222299400">
         <span class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
-        <div><div class="contact-label">Teléfono</div><div class="contact-val">222 101 0000</div></div>
-      </a>
-      <a class="contact-row" href="https://colegiosaltum.mx/contacto/" target="_blank" rel="noopener">
-        <span class="contact-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
-        <div><div class="contact-label">Visita nuestro colegio</div><div class="contact-val">Plantel San Diego · Puebla</div></div>
+        <div><div class="contact-label">Teléfono</div><div class="contact-val">(222) 229 9400</div></div>
       </a>
     </div>
   </div>
@@ -378,10 +355,26 @@
 <footer class="site">
   <div class="container footer-inner">
     <a class="brand" href="#top">
-      <span class="brand-mark">A</span>
+      <span class="brand-mark"><img src="data:image/png;base64,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" alt="Academics Tutores" /></span>
       <span class="brand-text"><span class="name">Academics Tutores</span><span class="sub">Centro de Ayuda</span></span>
     </a>
-    <div class="footer-copy">© 2026 Colegios Altum · Sistema UPAEP.<br/>Todos los derechos reservados.</div>
+    <div class="app-stores">
+      <a class="app-store-badge" href="https://apps.apple.com/mx/app/colegios-altum/id6469835074" target="_blank" rel="noopener" aria-label="Descargar en App Store">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+        <div class="app-store-badge-text">
+          <span class="small">Descarga en</span>
+          <span class="big">App Store</span>
+        </div>
+      </a>
+      <a class="app-store-badge" href="https://play.google.com/store/apps/details?id=com.upaep.altum" target="_blank" rel="noopener" aria-label="Descargar en Google Play">
+        <svg width="22" height="22" viewBox="0 0 24 24"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92z" fill="#00D4FF"/><path d="M16.81 15.013L6.05 21.342l8.558-8.558 2.202 2.229z" fill="#FF3A44"/><path d="M20.16 10.81a1.001 1.001 0 0 1 0 1.729l-2.302 1.33-2.438-2.438 2.438-2.438 2.302 1.816z" fill="#FFCE00"/><path d="M6.05 2.658l10.76 6.329-2.202 2.229L6.05 2.658z" fill="#00F076"/></svg>
+        <div class="app-store-badge-text">
+          <span class="small">Disponible en</span>
+          <span class="big">Google Play</span>
+        </div>
+      </a>
+    </div>
+    <div class="footer-copy">© 2026 Dirección de Innovación Tecnológica DIT | UPAEP.<br/>Todos los derechos reservados.</div>
   </div>
 </footer>
 
