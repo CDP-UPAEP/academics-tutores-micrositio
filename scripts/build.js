@@ -9,7 +9,7 @@
  */
 
 import { Client } from '@notionhq/client';
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, cp } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import 'dotenv/config';
@@ -315,6 +315,20 @@ async function build() {
   const outputDir = join(ROOT, config.outputDir);
   await mkdir(outputDir, { recursive: true });
   await writeFile(join(outputDir, 'index.html'), html, 'utf-8');
+
+  // Copiar assets estáticos (favicons, imágenes) al output
+  const assetsSrc = join(ROOT, 'assets');
+  const assetsDest = join(outputDir, 'assets');
+  try {
+    await cp(assetsSrc, assetsDest, { recursive: true });
+    console.log(`✓ Assets copiados a ${assetsDest}`);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      console.log(`  (Sin carpeta assets/ que copiar)`);
+    } else {
+      throw err;
+    }
+  }
 
   await mkdir(join(ROOT, 'data'), { recursive: true });
   await writeFile(
