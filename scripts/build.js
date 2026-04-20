@@ -134,7 +134,7 @@ function renderCard(item, index, config) {
   const icon = isVideo ? PLAY_BUTTON_SVG : (SVG_ICONS[thumbClass] || SVG_ICONS['thumb-instalacion']);
   const typeLabel = isVideo ? 'Video' : 'PDF';
   const typeClass = isVideo ? 'tc-type video' : 'tc-type';
-  const actionLabel = isVideo ? 'Ver video' : 'Descargar PDF';
+  const actionLabel = isVideo ? 'Ver video' : 'Consultar PDF';
   const hasUrl = item.url && item.url.trim().length > 0;
   const metaText = item.duration || (isVideo ? 'Video' : '');
 
