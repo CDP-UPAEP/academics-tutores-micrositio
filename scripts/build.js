@@ -4,16 +4,8 @@
  *  Colegios Altum · Academics Tutores (extensible a otros productos DIT)
  * ————————————————————————————————————————————————————————————————————
  *
- *  Flujo:
- *  1. Lee DOS bases de Notion:
- *     - "Registro de manuales" → tarjetas de tutoriales
- *     - "FAQs - Micrositios CDP" → preguntas frecuentes
- *  2. Aplica los filtros: Estado=Actualizado + Visible en micrositio + Producto
- *  3. Inyecta todo en el template y escribe public/index.html
- *
- *  Para lanzar un micrositio para otro producto, duplicar este proyecto
- *  y cambiar PRODUCT_CONFIG.productNames. La misma base de Notion sirve
- *  para todos los productos del DIT.
+ *  Filtra por el ID directo de la página relacionada (no por rollup)
+ *  para evitar depender del acceso a la base "Productos y herramientas".
  */
 
 import { Client } from '@notionhq/client';
@@ -26,7 +18,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
 const PRODUCT_CONFIG = {
-  productNames: ['Academics Tutores', 'ACADEMICS'],
+  // IDs exactos de las páginas en la base "Productos y herramientas" que cuentan como coincidencia.
+  // Aceptamos varios para soportar convivencia de "Academics Tutores" (nuevo) y "ACADEMICS" (legacy).
+  productPageIds: [
+    '28f08c5f-6bd7-8064-b878-c1ec2c67724e', // Academics Tutores
+    '1f808c5f-6bd7-8139-bed5-cce663b79642', // ACADEMICS (legacy)
+  ],
   displayName: 'Academics Tutores',
   manualsDatabaseId: process.env.NOTION_DATABASE_ID,
   faqsDatabaseId: process.env.NOTION_FAQS_DATABASE_ID,
@@ -41,7 +38,7 @@ const PRODUCT_CONFIG = {
     status: 'Estado',
     visible: 'Visible en micrositio',
     url: 'URL',
-    productRollup: 'Rollup',
+    productRelation: 'Herramienta o Producto', // Relación directa (no rollup)
   },
   faqProperties: {
     question: 'Pregunta',
@@ -49,7 +46,7 @@ const PRODUCT_CONFIG = {
     order: 'Orden',
     status: 'Estado',
     visible: 'Visible en micrositio',
-    productRollup: 'Rollup',
+    productRelation: 'Herramienta o Producto', // Relación directa (no rollup)
   },
   categorySlugOverrides: {},
 };
@@ -62,13 +59,16 @@ const prop = {
   url: (p) => p?.url || '',
   checkbox: (p) => !!p?.checkbox,
   number: (p) => (typeof p?.number === 'number' ? p.number : null),
-  rollupTitles: (p) => {
-    if (!p?.rollup?.array) return [];
-    return p.rollup.array
-      .map(item => item?.title?.map(t => t.plain_text).join('') || '')
-      .filter(Boolean);
+  relationIds: (p) => {
+    if (!p?.relation) return [];
+    return p.relation.map(r => r?.id || '').filter(Boolean);
   },
 };
+
+function normalizeId(id) {
+  // Normaliza IDs removiendo guiones para comparación consistente
+  return String(id || '').replace(/-/g, '').toLowerCase();
+}
 
 const THUMB_POOL = [
   'thumb-instalacion', 'thumb-familia', 'thumb-facturacion', 'thumb-estado',
@@ -102,23 +102,17 @@ function getCategorySlug(category, config) {
   return config.categorySlugOverrides[category] || slugify(category) || 'sin-categoria';
 }
 
-/**
- * Convierte el texto de una respuesta de FAQ a HTML formateado.
- * Maneja: bullets con "•", saltos de línea "<br>" literales que vienen de Notion,
- * y texto plano corrido.
- */
 function formatAnswerText(text) {
   if (!text) return '';
   let html = escapeHtml(text);
   html = html.replace(/&lt;br\s*\/?&gt;/gi, '\n');
   const lines = html.split(/\n/).map(l => l.trim()).filter(Boolean);
   if (lines.length === 0) return '';
-
   const output = [];
   let currentList = null;
   for (const line of lines) {
     if (line.startsWith('•')) {
-      if (!currentList) { currentList = []; }
+      if (!currentList) currentList = [];
       currentList.push(`<li>${line.substring(1).trim()}</li>`);
     } else {
       if (currentList) {
@@ -213,10 +207,10 @@ async function fetchManuals(notion, config) {
   } while (cursor);
   console.log(`  ${pages.length} manuales con Estado=Actualizado + Visible=✓`);
 
-  const acceptedNames = config.productNames.map(n => n.toLowerCase());
+  const acceptedIds = config.productPageIds.map(normalizeId);
   const filtered = pages.filter(page => {
-    const productNames = prop.rollupTitles(page.properties[config.manualProperties.productRollup]);
-    return productNames.some(n => acceptedNames.includes(n.toLowerCase()));
+    const relationIds = prop.relationIds(page.properties[config.manualProperties.productRelation]);
+    return relationIds.some(id => acceptedIds.includes(normalizeId(id)));
   });
   console.log(`✓ ${filtered.length} manuales de "${config.displayName}"`);
 
@@ -256,10 +250,10 @@ async function fetchFaqs(notion, config) {
   } while (cursor);
   console.log(`  ${pages.length} FAQs con Estado=Actualizado + Visible=✓`);
 
-  const acceptedNames = config.productNames.map(n => n.toLowerCase());
+  const acceptedIds = config.productPageIds.map(normalizeId);
   const filtered = pages.filter(page => {
-    const productNames = prop.rollupTitles(page.properties[config.faqProperties.productRollup]);
-    return productNames.some(n => acceptedNames.includes(n.toLowerCase()));
+    const relationIds = prop.relationIds(page.properties[config.faqProperties.productRelation]);
+    return relationIds.some(id => acceptedIds.includes(normalizeId(id)));
   });
   console.log(`✓ ${filtered.length} FAQs de "${config.displayName}"`);
 
