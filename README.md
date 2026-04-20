@@ -61,7 +61,7 @@ Las opciones de `Categoría Pública` las puedes ir creando conforme definas los
 
 ### 🟡 FASE 2 — Cuando tengas el token del administrador
 
-1. Agregar los 2 secretos al repo
+1. Agregar los 3 secretos al repo
 2. Conectar la integración a la base en Notion
 3. Disparar el primer build manualmente
 4. Tu sitio está vivo con los materiales que ya llenaste en la FASE 1
@@ -74,13 +74,13 @@ Las opciones de `Categoría Pública` las puedes ir creando conforme definas los
 >
 > Hola [nombre],
 >
-> Necesito crear una integración interna en nuestro workspace de Notion (iddupaep) para automatizar la publicación del centro de ayuda de padres de familia de Academics Tutores. Te detallo:
+> Necesito crear una integración interna en nuestro workspace de Notion (XXXXXXXXXX) para automatizar la publicación del centro de ayuda de XXXXXXXXXX. Te detallo:
 >
-> **Qué hace:** lee periódicamente nuestra base "📖 Registro de manuales" y publica automáticamente los manuales marcados como "Actualizado" y "Visible en micrositio" en un sitio público estático.
+> **Qué hace:** lee periódicamente nuestra base "📖 XXXXXXXXXX" y publica automáticamente los manuales marcados como "Actualizado" y "Visible en micrositio" en un sitio público estático.
 >
 > **Permisos requeridos:** solo-lectura (Read content). No modifica ni elimina nada.
 >
-> **Alcance:** únicamente la base "📖 Registro de manuales". No tiene acceso a otros espacios del workspace.
+> **Alcance:** únicamente la base "📖 XXXXXXXXXX". No tiene acceso a otros espacios del workspace.
 >
 > **Qué necesito de ti:**
 > 1. Entrar a https://www.notion.so/my-integrations
@@ -96,7 +96,7 @@ Las opciones de `Categoría Pública` las puedes ir creando conforme definas los
 
 ### 1. Crea el repo
 
-1. Crea un nuevo repositorio en GitHub llamado `academics-tutores-micrositio` (privado está bien)
+1. Crea un nuevo repositorio en GitHub llamado `XXXXXXXXXX` (privado no funciona en GitHub Workspace)
 2. Descarga este proyecto, descomprime
 3. En la terminal:
 
@@ -125,7 +125,8 @@ Repo → **Settings** → **Secrets and variables** → **Actions** → **New re
 | Nombre | Valor |
 |---|---|
 | `NOTION_TOKEN` | El token que te dé el administrador |
-| `NOTION_DATABASE_ID` | `31308c5f6bd780b9969ad177b95cb675` |
+| `NOTION_DATABASE_ID` | `XXXXXXXXXX` |
+| `FALTA OTRA BD` | `XXXXXXXXXX` |
 
 ### 2. Dispara el primer build
 
@@ -143,7 +144,7 @@ https://TU-USUARIO.github.io/academics-tutores-micrositio/
 ### Para agregar un tutorial nuevo
 1. Tu equipo crea la página en la base "Registro de manuales" en Notion
 2. Llena: Título, Descripción Corta, Categoría Pública, Tipo de Recurso, Duración Estimada, URL
-3. En `Herramienta o Producto` selecciona **Academics Tutores** (o **ACADEMICS** mientras no se complete el renombre — el script acepta ambos)
+3. En `Herramienta o Producto` selecciona **XXXXXXXXXX** (o **XXXXXXXXXX** mientras no se complete el renombre — el script acepta ambos)
 4. Marca `Estado = Actualizado` y `Visible en micrositio = ☑`
 5. En la próxima sincronización nocturna (6:00 AM CDMX) aparecerá en el sitio
 
@@ -208,10 +209,10 @@ La base de Notion **sigue siendo la misma**: un solo lugar para gestionar conten
 ## ❓ Troubleshooting
 
 **"Error: object_not_found" o "Could not find database"**
-→ El token no tiene acceso a la base. Verifica en Notion: base "📖 Registro de manuales" → `...` → Connections → asegúrate que "Micrositio Centro de Ayuda" esté ahí.
+→ El token no tiene acceso a la base. Verifica en Notion: base "📖 XXXXXXXXXX" → `...` → Connections → asegúrate que "Micrositio Centro de Ayuda" esté ahí.
 
 **"0 manuales encontrados"**
-→ Revisa que al menos un manual cumpla los 3 criterios: Estado=Actualizado + Visible=✓ + Herramienta=Academics Tutores (o ACADEMICS).
+→ Revisa que al menos un manual cumpla los 3 criterios: Estado=Actualizado + Visible=✓ + Herramienta=XXXXXXXXXX (o XXXXXXXXXX).
 
 **"Error: Property 'Descripción Corta' does not exist"**
 → Revisa ortografía exacta en Notion (acentos y mayúsculas cuentan).
